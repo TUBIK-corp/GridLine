@@ -1,0 +1,117 @@
+﻿<Window x:Class="GridLine_IDE.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GridLine_IDE"
+        mc:Ignorable="d"
+        Title="GridLine IDE" Height="675" Width="1200">
+    <Grid Background="#23232a">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="3*"/>
+        </Grid.RowDefinitions>
+        <GridSplitter Grid.Row="2" ShowsPreview="False" Height="2"
+        HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+
+        <Grid Grid.Row="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="20"/>
+            </Grid.RowDefinitions>
+            <Border Background="#313141">
+                <TextBlock Margin="20 0 0 0"  Text="Консоль" Foreground="White"/>
+            </Border>
+            <Border Background="#414151" Grid.Row="2">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="GridLine IDE" Foreground="White" Margin="20 0 10 0" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
+                    <TextBox IsReadOnly="True" VerticalAlignment="Center" Text="Программа не выполнялась."   TextAlignment="Center" x:Name="ProgramResultBox" Background="Transparent" BorderThickness="0" Foreground="Gray"/>
+                </StackPanel>
+            </Border>
+            <RichTextBox IsDocumentEnabled="True" AcceptsReturn="True" Padding="0" x:Name="ConsoleBox" Hyperlink.Click="ConsoleLinkClicked" BorderThickness="0" IsReadOnly="True" Background="Transparent" Grid.Row="1" IsReadOnlyCaretVisible="False">
+                <RichTextBox.Resources>
+                    <Style TargetType="{x:Type Paragraph}">
+                        <Setter Property="Margin" Value="0"/>
+                    </Style>
+                </RichTextBox.Resources>
+                <FlowDocument>
+                    <Paragraph>
+                        <LineBreak/>
+                    </Paragraph>
+                </FlowDocument>
+            </RichTextBox>
+        </Grid>
+        <Grid Background="#31313d" Grid.Row="1">
+            <Grid.ColumnDefinitions >
+                <ColumnDefinition Width="1.6*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <GridSplitter Grid.Column="1" ShowsPreview="False" Width="2"
+        HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+
+            <Grid >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="35"/>
+                </Grid.RowDefinitions>
+                <RichTextBox Background="#21212a" BorderThickness="0"  Margin="5" x:Name="CodeInput" Foreground="White" AcceptsReturn="True" PreviewKeyDown="CodeInputKeyDown" PreviewMouseWheel="CodeInputPreviewMouseWheel">
+                    <RichTextBox.Resources>
+                        <Style TargetType="{x:Type Paragraph}">
+                            <Setter Property="Margin" Value="0"/>
+                        </Style>
+                    </RichTextBox.Resources>
+                </RichTextBox>
+                <Button Grid.Row="1" Content="Запустить" Click="StartClicked">
+                    <Button.Template>
+                        <ControlTemplate>
+
+                            <Border BorderThickness="1" BorderBrush="White" CornerRadius="10" Margin="7 2 7 2" Background="#41415a">
+                                <TextBlock Text="Запустить" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" FontSize="20"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="7*"/>
+                </Grid.RowDefinitions>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5*"/>
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Background="Red" MouseDown="StopButtonClicked">
+                        <Border.ToolTip>
+                            <TextBlock Text="Stop"/>
+                        </Border.ToolTip>
+                        <Border Margin="5" Padding="10" Background="DarkRed"/>
+                    </Border>
+                    <StackPanel>
+                        <TextBlock TextAlignment="Center" Text="Interval (ms)" Foreground="White" />
+                        <Slider x:Name="CurrentIntervalSlider"  ValueChanged="CurrentIntervalValueChanged" Value="10" VerticalAlignment="Center" Minimum="1" Maximum="200" Margin="20 0 20 0" />
+                        <TextBlock x:Name="CurrentIntervalText" TextAlignment="Center" Text="100 ms" Foreground="White" />
+                    </StackPanel>
+                </Grid>
+                <Border Grid.Row="1" Background="White" VerticalAlignment="Bottom" Margin="20" x:Name="FieldBorder" BorderBrush="Black" BorderThickness="2">
+                    <Viewbox Stretch="Uniform">
+                        <ScrollViewer x:Name="FieldScroll" PreviewMouseWheel="FieldScroll_PreviewMouseWheel" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" SnapsToDevicePixels="True" Background="LightGray" Height="512" Width="512">
+
+                            <Grid  x:Name="Field" >
+                                <Grid.RenderTransform>
+                                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                </Grid.RenderTransform>
+                            </Grid>
+                        </ScrollViewer>
+                    </Viewbox>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
