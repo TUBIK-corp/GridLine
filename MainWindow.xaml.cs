@@ -185,7 +185,7 @@ namespace GridLine_IDE
                 return;
             var value = (int)CurrentIntervalSlider.Value * 10;
             App.ExecutionInterval = value;
-            CurrentIntervalText.Text = value + " ms";
+            CurrentIntervalText.Text = value + " мс";
         }
 
         private void StopButtonClicked(object sender, MouseButtonEventArgs e)
@@ -263,5 +263,6 @@ namespace GridLine_IDE
                         }));
             }
         }
+
     }
 }

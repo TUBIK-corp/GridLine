@@ -6,6 +6,57 @@
         xmlns:local="clr-namespace:GridLine_IDE"
         mc:Ignorable="d"
         Title="GridLine IDE" Height="675" Width="1200">
+    <Window.Resources>
+        <Style x:Key="ParentMenuItem" TargetType="MenuItem" >
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type MenuItem}">
+                        <Border x:Name="Border">
+                            <Grid>
+                                <ContentPresenter Margin="6,3,6,3" ContentSource="Header" RecognizesAccessKey="True" />
+                                <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsSubmenuOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                                    <Border x:Name="SubmenuBorder" SnapsToDevicePixels="True" Padding="0 2 0 2" BorderThickness="2" Background="#31313a">
+                                        <Border.BorderBrush>
+                                            <SolidColorBrush Color="#363646" />
+                                        </Border.BorderBrush>
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="MenuItemStyle" TargetType="{x:Type MenuItem}">
+            <Setter Property="Background" Value="#313131"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border  Margin="3 0 3 0" Padding="3">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="#31313a"/>
+                                    <Setter Property="CornerRadius" Value="5"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#41414a"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="False">
+                                            <Setter Property="Background" Value="#31313a"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="{TemplateBinding Header}" Margin="3 0 0 0" Foreground="White"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Grid Background="#23232a">
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
@@ -13,6 +64,35 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="3*"/>
         </Grid.RowDefinitions>
+        <Menu Background="Transparent" VerticalAlignment="Center" Margin="10 0 0 0" Foreground="White" BorderThickness="0">
+            <Menu.Style>
+                <Style TargetType="{x:Type Menu}">
+                    <Setter Property="OverridesDefaultStyle" Value="True"/>
+                    <Setter Property="SnapsToDevicePixels" Value="True"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type Menu}">
+                                <Border BorderThickness="0">
+                                    <StackPanel ClipToBounds="True" Orientation="Horizontal"
+                      IsItemsHost="True"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Menu.Style>
+            <MenuItem Header="Файл" Background="Transparent" Style="{DynamicResource ParentMenuItem}">
+                <MenuItem Header="Открыть" Style="{StaticResource MenuItemStyle}"/>
+                <MenuItem Header="Импорт" Style="{StaticResource MenuItemStyle}"/>
+                <MenuItem Header="Экспорт" Style="{StaticResource MenuItemStyle}"/>
+                <MenuItem Header="Сохранить в БД" Style="{StaticResource MenuItemStyle}"/>
+                <MenuItem Header="Сохранить на диске" Style="{StaticResource MenuItemStyle}"/>
+            </MenuItem>
+            <MenuItem Header="Дополнительно" Background="Transparent"  Style="{DynamicResource ParentMenuItem}">
+                <MenuItem Header="Справка" Style="{StaticResource MenuItemStyle}"/>
+            </MenuItem>
+        </Menu>
+
         <GridSplitter Grid.Row="2" ShowsPreview="False" Height="2"
         HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
 
@@ -94,9 +174,9 @@
                         <Border Margin="5" Padding="10" Background="DarkRed"/>
                     </Border>
                     <StackPanel>
-                        <TextBlock TextAlignment="Center" Text="Interval (ms)" Foreground="White" />
+                        <TextBlock TextAlignment="Center" Text="Интервал (мс)" Foreground="White" />
                         <Slider x:Name="CurrentIntervalSlider"  ValueChanged="CurrentIntervalValueChanged" Value="10" VerticalAlignment="Center" Minimum="1" Maximum="200" Margin="20 0 20 0" />
-                        <TextBlock x:Name="CurrentIntervalText" TextAlignment="Center" Text="100 ms" Foreground="White" />
+                        <TextBlock x:Name="CurrentIntervalText" TextAlignment="Center" Text="100 мс" Foreground="White" />
                     </StackPanel>
                 </Grid>
                 <Border Grid.Row="1" Background="White" VerticalAlignment="Bottom" Margin="20" x:Name="FieldBorder" BorderBrush="Black" BorderThickness="2">
