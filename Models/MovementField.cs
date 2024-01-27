@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Threading;
-using static LangLine.Models.FieldModel;
 
 namespace GridLine_IDE.Models
 {
@@ -31,7 +25,7 @@ namespace GridLine_IDE.Models
             UserVisual.Background = Brushes.Red;
             UserVisual.VerticalAlignment = System.Windows.VerticalAlignment.Stretch;
             UserVisual.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
-
+            object c = new object();
             Field.Children.Add(UserVisual);
 
             timer = new Timer(10);

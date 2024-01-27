@@ -1,11 +1,6 @@
 ﻿using LangLine;
+using LangLine.Commands;
 using LangLine.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GridLine_IDE.NewCommands
 {
@@ -29,8 +24,20 @@ namespace GridLine_IDE.NewCommands
 
         public void InterpreteArguments(string str_args)
         {
+            foreach (var arg in str_args.Split(' '))
+            {
+                var argument = App.LangLineProgram.InterpreteArgument(arg);
+                var text = argument.ToLangLineString();
+                if(!arg.Equals(text))
+                {
+                    text = $"{arg}: {text}";
+                }
+                str_args = str_args.Replace(arg, text);
+            }
             TextTolog = str_args;
         }
+
+        
 
         public void Execute()
         {
@@ -41,6 +48,25 @@ namespace GridLine_IDE.NewCommands
         {
             InterpreteArguments(args);
             Execute();
+        }
+    }
+
+    internal static class LogCommandExt
+    {
+        internal static string ToLangLineString(this object obj)
+        {
+            if (obj.GetType() == typeof(ProcedureCommand.ExecuteProcedure))
+            {
+                var target = ((ProcedureCommand.ExecuteProcedure)obj).Target as ProcedureCommand;
+
+                var str = "";
+                foreach (var command in target.Block)
+                {
+                    str += $"\n{command.Index}. {command.Line}";
+                }
+                return str + "\n";
+            }
+            else return obj.ToString();
         }
     }
 }

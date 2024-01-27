@@ -36,7 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LangLine, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\LangLine.1.0.4\lib\net48\LangLine.dll</HintPath>
+      <HintPath>..\packages\LangLine.1.0.4.2\lib\net48\LangLine.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

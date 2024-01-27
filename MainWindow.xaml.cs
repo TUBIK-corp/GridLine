@@ -93,35 +93,45 @@ namespace GridLine_IDE
 
         private void InterpreterModule_OnException(ExceptionEventArgs args)
         {
-            Dispatcher.Invoke(() =>
+            try
             {
-                var stacktrace = App.LangLineProgram.StackTrace;
-                stacktrace.Reverse();
+                Dispatcher.Invoke(() =>
+                {
+                    var stacktrace = App.LangLineProgram.StackTrace;
+                    stacktrace.Reverse();
 
+                    var exceptionParagraph = new Paragraph();
+                    exceptionParagraph.Foreground = Brushes.Red;
+                    exceptionParagraph.Inlines.Add($"\nВ {GetCurrentTime()} произошла ошибка:");
+                    foreach (var exception in stacktrace)
+                    {
+
+                        Hyperlink lineLink = new Hyperlink();
+                        lineLink.Inlines.Add($"\n{exception.Exception.Message}");
+                        lineLink.Foreground = Brushes.Red;
+                        lineLink.Tag = exception.Line;
+                        lineLink.Click += ConsoleLinkClicked;
+                        exceptionParagraph.Inlines.Add(lineLink);
+                        foreach (var paragraph in CodeInput.Document.Blocks.ToList().Where(line => (int)line.Tag == exception.Line))
+                        {
+                            paragraph.Foreground = Brushes.Red;
+                        }
+                    }
+                    exceptionParagraph.Inlines.Add("\n");
+
+                    var arg = args;
+                    ConsoleWrite(exceptionParagraph);
+                    ProgramResultBox.Foreground = Brushes.Red;
+                    ProgramResultBox.TextDecorations = TextDecorations.Underline;
+                    ProgramResultBox.Text = $"{stacktrace.Last().Exception.Message}";
+                });
+            } catch(Exception ex)
+            {
                 var exceptionParagraph = new Paragraph();
                 exceptionParagraph.Foreground = Brushes.Red;
-                exceptionParagraph.Inlines.Add($"\nВ {GetCurrentTime()} произошла ошибка:");
-                foreach (var exception in stacktrace) {
-
-                    Hyperlink lineLink = new Hyperlink();
-                    lineLink.Inlines.Add($"\n{exception.Exception.Message}");
-                    lineLink.Foreground = Brushes.Red;
-                    lineLink.Tag = exception.Line;
-                    lineLink.Click += ConsoleLinkClicked;
-                    exceptionParagraph.Inlines.Add(lineLink);
-                    foreach (var paragraph in CodeInput.Document.Blocks.ToList().Where(line => (int)line.Tag == exception.Line))
-                    {
-                        paragraph.Foreground = Brushes.Red;
-                    }
-                }
-                exceptionParagraph.Inlines.Add("\n");
-
-                var arg = args;
+                exceptionParagraph.Inlines.Add("Внутренняя ошибка: " + ex.Message);
                 ConsoleWrite(exceptionParagraph);
-                ProgramResultBox.Foreground = Brushes.Red;
-                ProgramResultBox.TextDecorations = TextDecorations.Underline;
-                ProgramResultBox.Text = $"{stacktrace.Last().Exception.Message}";
-            });
+            };
         }
 
 
@@ -173,7 +183,9 @@ namespace GridLine_IDE
         public void StartProgram()
         {
             ResetCommandList();
+            var list = App.LangLineProgram.InterpreterModule.CommandList;
             App.LangLineProgram.StartProgram();
+            list = App.LangLineProgram.InterpreterModule.CommandList;
             var positions = App.LangLineProgram.MainField.GetPositions();
             App.MainGrid.UpdatePositions(positions);
             App.MainGrid.StartMovement();
