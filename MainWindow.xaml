@@ -5,8 +5,33 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GridLine_IDE"
         mc:Ignorable="d"
-        Title="GridLine IDE" Height="675" Width="1200">
+        Title="GridLine IDE" Height="675" Width="1200" PreviewKeyDown="WindowPreviewKeyDown">
     <Window.Resources>
+        <Style x:Key="ControlButton" TargetType="Button">
+            <Setter Property="Background" Value="#92929f"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="BorderBrush" Value="#25252f"/>
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                        <Condition Property="IsEnabled" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="BorderBrush" Value="#92929f"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="False"/>
+                        <Condition Property="IsEnabled" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="BorderBrush" Value="#25252f"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
         <Style x:Key="ParentMenuItem" TargetType="MenuItem" >
             <Setter Property="Template">
                 <Setter.Value>
@@ -60,10 +85,73 @@
     <Grid Background="#23232a">
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
+            <RowDefinition Height="30"/>
             <RowDefinition Height="10*"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="3*"/>
         </Grid.RowDefinitions>
+        <Border VerticalAlignment="Center" Background="#25252f" BorderThickness="1" BorderBrush="#13131a" Grid.Row="1">
+            <StackPanel Orientation="Horizontal" >
+                <TextBlock Text="GridLine IDE" VerticalAlignment="Center" Foreground="White" Margin="20 0 20 0"/>
+                <Button Background="#25252f" BorderThickness="0" Click="StartClicked" Style="{DynamicResource ControlButton}">
+                    <Button.Template>
+                        <ControlTemplate>
+                            <Border BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Image Source="{StaticResource PuskImage}" VerticalAlignment="Center" Margin="6"/>
+                                    <TextBlock Text="Запуск" Foreground="White" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                </StackPanel>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+
+                </Button>
+                <Button Background="#25252f"  x:Name="StopButton" Click="StopButtonClicked" IsEnabled="False" BorderThickness="0" Style="{DynamicResource ControlButton}">
+                    <Button.Template>
+                        <ControlTemplate>
+                            <Border BorderThickness="1" BorderBrush="{TemplateBinding BorderBrush}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Image x:Name="StopImage" Source="{StaticResource StopDisabledImage}" VerticalAlignment="Center" Margin="6"/>
+                                    <TextBlock x:Name="StopText" Foreground="Gray" Text="Стоп"  VerticalAlignment="Center" Margin="0 0 5 0"/>
+                                </StackPanel>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <Button Style="{DynamicResource ControlButton}" Click="PauseResumeButtonClick" x:Name="PauseResumeButton">
+                    <Button.Template>
+                        <ControlTemplate>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Image x:Name="PauseResumeImage" Source="{StaticResource ResumeDisabledImage}" VerticalAlignment="Center" Margin="6"/>
+                                <TextBlock x:Name="PauseResumeText" Foreground="Gray" Text="Возобновить"  VerticalAlignment="Center" Margin="0 0 5 0"/>
+                            </StackPanel>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button Style="{DynamicResource ControlButton}" Click="ClickBackward">
+                    <Button.ToolTip>
+                        <ToolTip Content="Шаг назад"/>
+                    </Button.ToolTip>
+                    <Button.Template>
+                        <ControlTemplate>
+                            <Image Source="{StaticResource BackwardImage}" VerticalAlignment="Center" Margin="6"/>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button Style="{DynamicResource ControlButton}" Click="ClickForward">
+                    <Button.ToolTip>
+                        <ToolTip Content="Шаг вперед"/>
+                    </Button.ToolTip>
+                    <Button.Template>
+                        <ControlTemplate>
+                            <Image Source="{StaticResource ForwardImage}" VerticalAlignment="Center" Margin="6"/>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+        </Border>
+
         <Menu Background="Transparent" VerticalAlignment="Center" Margin="10 0 0 0" Foreground="White" BorderThickness="0">
             <Menu.Style>
                 <Style TargetType="{x:Type Menu}">
@@ -93,10 +181,11 @@
             </MenuItem>
         </Menu>
 
-        <GridSplitter Grid.Row="2" ShowsPreview="False" Height="2"
-        HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+        <GridSplitter Grid.Row="3" ShowsPreview="False" Height="3"
+        HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="Transparent" BorderThickness="1" BorderBrush="#63636a">
+        </GridSplitter>
 
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="4">
             <Grid.RowDefinitions>
                 <RowDefinition Height="20"/>
                 <RowDefinition Height="*"/>
@@ -105,7 +194,7 @@
             <Border Background="#313141">
                 <TextBlock Margin="20 0 0 0"  Text="Консоль" Foreground="White"/>
             </Border>
-            <Border Background="#414151" Grid.Row="2">
+            <Border Background="#414151" Grid.Row="3">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="GridLine IDE" Foreground="White" Margin="20 0 10 0" FontWeight="Bold" VerticalAlignment="Center"></TextBlock>
                     <TextBox IsReadOnly="True" VerticalAlignment="Center" Text="Программа не выполнялась."   TextAlignment="Center" x:Name="ProgramResultBox" Background="Transparent" BorderThickness="0" Foreground="Gray"/>
@@ -124,28 +213,33 @@
                 </FlowDocument>
             </RichTextBox>
         </Grid>
-        <Grid Background="#31313d" Grid.Row="1">
+        <Grid Background="#31313d" Grid.Row="2">
             <Grid.ColumnDefinitions >
                 <ColumnDefinition Width="1.6*"/>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <GridSplitter Grid.Column="1" ShowsPreview="False" Width="2"
-        HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+            <GridSplitter Grid.Column="1" ShowsPreview="False" Width="3"
+        HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="Transparent" BorderThickness="1" BorderBrush="#63636a"/>
 
             <Grid >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="10*"/>
-                    <RowDefinition Height="35"/>
+                    <RowDefinition Height="15"/>
                 </Grid.RowDefinitions>
-                <RichTextBox Background="#21212a" BorderThickness="0"  Margin="5" x:Name="CodeInput" Foreground="White" AcceptsReturn="True" PreviewKeyDown="CodeInputKeyDown" PreviewMouseWheel="CodeInputPreviewMouseWheel">
+                <RichTextBox Background="#21212a" BorderThickness="0" SelectionChanged="CodeInputCaretChanged" Grid.Row="0" Margin="5 5 5 1" x:Name="CodeInput" Foreground="White" AcceptsReturn="True" PreviewKeyDown="CodeInputKeyDown" PreviewMouseWheel="CodeInputPreviewMouseWheel">
                     <RichTextBox.Resources>
                         <Style TargetType="{x:Type Paragraph}">
                             <Setter Property="Margin" Value="0"/>
                         </Style>
                     </RichTextBox.Resources>
                 </RichTextBox>
-                <Button Grid.Row="1" Content="Запустить" Click="StartClicked">
+                
+                <TextBox IsReadOnly="True" Background="Transparent" BorderThickness="0" x:Name="CodeInputStatus" Text="Строка 1, символ 1" Foreground="LightGray" Grid.Row="1" Margin="10 0 10 0" FontSize="10" VerticalAlignment="Center"/>
+
+                
+                
+                <Button Grid.Row="0" Content="Запустить" Visibility="Hidden" Click="StartClicked">
                     <Button.Template>
                         <ControlTemplate>
 
@@ -163,23 +257,18 @@
                     <RowDefinition Height="7*"/>
                 </Grid.RowDefinitions>
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="5*"/>
-                        <ColumnDefinition Width="50"/>
-                    </Grid.ColumnDefinitions>
-                    <Border Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" Background="Red" MouseDown="StopButtonClicked">
-                        <Border.ToolTip>
-                            <TextBlock Text="Stop"/>
-                        </Border.ToolTip>
-                        <Border Margin="5" Padding="10" Background="DarkRed"/>
-                    </Border>
-                    <StackPanel>
-                        <TextBlock TextAlignment="Center" Text="Интервал (мс)" Foreground="White" />
-                        <Slider x:Name="CurrentIntervalSlider"  ValueChanged="CurrentIntervalValueChanged" Value="10" VerticalAlignment="Center" Minimum="1" Maximum="200" Margin="20 0 20 0" />
-                        <TextBlock x:Name="CurrentIntervalText" TextAlignment="Center" Text="100 мс" Foreground="White" />
-                    </StackPanel>
+                    <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0 5 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="0.5*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" TextAlignment="Center"  Text="Интервал (мс)" Foreground="White" />
+                        <Slider Grid.Column="1" x:Name="CurrentIntervalSlider" ValueChanged="CurrentIntervalValueChanged" Value="10" VerticalAlignment="Center" Minimum="1" Maximum="200" Margin="20 0 20 0" />
+                        <TextBlock Grid.Column="2" x:Name="CurrentIntervalText"  TextAlignment="Center" Text="100 мс" Foreground="White" />
+                    </Grid>
                 </Grid>
-                <Border Grid.Row="1" Background="White" VerticalAlignment="Bottom" Margin="20" x:Name="FieldBorder" BorderBrush="Black" BorderThickness="2">
+                <Border Grid.Row="1" Background="LightGray" VerticalAlignment="Bottom" Margin="20" x:Name="FieldBorder" BorderBrush="Black" BorderThickness="2">
                     <Viewbox Stretch="Uniform">
                         <ScrollViewer x:Name="FieldScroll" PreviewMouseWheel="FieldScroll_PreviewMouseWheel" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" SnapsToDevicePixels="True" Background="LightGray" Height="512" Width="512">
 

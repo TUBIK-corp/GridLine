@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,6 +9,10 @@ namespace GridLine_IDE.Models
 {
     public class MovementField
     {
+
+        public delegate void EndMovement();
+        public event EndMovement MoveEnded;
+
         public Grid Field { get; private set; }
         public Border UserVisual { get; private set; }
         public List<Point> Positions { get; private set; }
@@ -20,6 +25,7 @@ namespace GridLine_IDE.Models
         public MovementField(Grid grid)
         {
             Field = grid;
+            Positions = new List<Point>() { new Point(0, 0) };
             UserVisual = new Border();
             UserVisual.Margin = new System.Windows.Thickness(4);
             UserVisual.Background = Brushes.Red;
@@ -41,9 +47,10 @@ namespace GridLine_IDE.Models
             {
                 if (Iterator >= Positions.Count)
                 {
+                    Iterator--;
                     timer.Stop();
                     Tick = 0;
-                    Iterator = 0;
+                    EndMove();
                     return;
                 }
                 UpdateUI(Iterator);
@@ -51,9 +58,19 @@ namespace GridLine_IDE.Models
             }
         }
 
+        public void Pause() => timer.Stop();
+        public void Resume() => timer.Start();
+
+        private void EndMove()
+        {
+            MoveEnded?.Invoke();
+        }
+
         public void UpdatePositions(List<Point> positions)
         {
             Positions = positions;
+            Positions.Insert(0, new Point(0,0));
+            ReloadUI();
         }
 
         public void StartMovement()
@@ -67,6 +84,8 @@ namespace GridLine_IDE.Models
         {
             Iterator = 0;
             Tick = 0;
+            UpdateUI(Positions.Count - 1);
+            EndMove();
             timer.Stop();
         }
 
@@ -82,7 +101,7 @@ namespace GridLine_IDE.Models
         public void StepForward()
         {
 
-            if (Iterator < Positions.Count)
+            if (Iterator < Positions.Count-1)
             {
                 Iterator++;
                 UpdateUI(Iterator);
@@ -96,6 +115,14 @@ namespace GridLine_IDE.Models
             {
                 Grid.SetColumn(UserVisual, (int)Positions[index].X);
                 Grid.SetRow(UserVisual, (int)Positions[index].Y);
+            });
+        }
+        public void ReloadUI()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Grid.SetColumn(UserVisual, 0);
+                Grid.SetRow(UserVisual, 0);
             });
         }
     }

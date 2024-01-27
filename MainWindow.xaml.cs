@@ -1,8 +1,10 @@
-﻿using GridLine_IDE.Models;
+﻿using GridLine_IDE.Enums;
+using GridLine_IDE.Models;
 using GridLine_IDE.NewCommands;
 using IspolnitelCherepashka.Helpers;
 using LangLine.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -14,6 +16,7 @@ using System.Windows.Documents;
 using System.Windows.Documents.DocumentStructures;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
 using ExceptionEventArgs = LangLine.Models.ExceptionEventArgs;
@@ -35,9 +38,10 @@ namespace GridLine_IDE
                  true // Handler will be called even though e.Handled = true
                 );
             App.LangLineProgram.InterpreterModule.OnCompleted += ProgramCompleted;
-            App.LangLineProgram.InterpreterModule.OnException += InterpreterModule_OnException; ;
+            App.LangLineProgram.InterpreterModule.OnException += ProgramException; ;
             App.MainGrid = new MovementField(GridHelper.CreateGrid(App.LangLineProgram.MainField.Width, App.LangLineProgram.MainField.Height));
             Field.Children.Add(App.MainGrid.Field);
+            App.MainGrid.MoveEnded += GridMoveEnded;
 
             //new Thread(() => { while (true) {Thread.Sleep(100);  Console.WriteLine(App.LangLineProgram.StackTrace.Count); } }).Start();
             //try
@@ -49,6 +53,15 @@ namespace GridLine_IDE
             //}
             App.LangLineProgram.RegisterCommand("LOG", typeof(LogCommand));
             SetupProgram();
+        }
+
+        private void GridMoveEnded()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ToggleStopButton(false);
+                TogglePRButton(PRStatuses.DisabledResume); 
+            });
         }
 
         public void SetupProgram()
@@ -72,7 +85,7 @@ namespace GridLine_IDE
 
         public string GetCurrentTime()
         {
-            return DateTime.Now.ToString("hh:mm:ss");
+            return DateTime.Now.ToString("HH:mm:ss");
         }
 
         public void ConsoleWrite(Paragraph paragraph)
@@ -87,11 +100,16 @@ namespace GridLine_IDE
             {
                 ProgramResultBox.Foreground = Brushes.Lime;
                 ProgramResultBox.TextDecorations = null;
+
+                var goodEndParagraph = new Paragraph();
+                goodEndParagraph.Foreground = Brushes.Gray;
+                goodEndParagraph.Inlines.Add($"\nВ {GetCurrentTime()}: Программа завершилась успешно.");
+                ConsoleWrite(goodEndParagraph);
                 ProgramResultBox.Text = $"Программа успешно выполненена за {App.LangLineProgram.MainField.GetPositions().Count} шагов.";
             });
         }
 
-        private void InterpreterModule_OnException(ExceptionEventArgs args)
+        private void ProgramException(ExceptionEventArgs args)
         {
             try
             {
@@ -132,6 +150,10 @@ namespace GridLine_IDE
                 exceptionParagraph.Inlines.Add("Внутренняя ошибка: " + ex.Message);
                 ConsoleWrite(exceptionParagraph);
             };
+            var badEndParagraph = new Paragraph();
+            badEndParagraph.Foreground = Brushes.Gray;
+            badEndParagraph.Inlines.Add($"В {GetCurrentTime()}: Программа завершилась с ошибкой.");
+            ConsoleWrite(badEndParagraph);
         }
 
 
@@ -180,12 +202,14 @@ namespace GridLine_IDE
             StartProgram();
         }
 
+
         public void StartProgram()
         {
+            IsPaused = false;
+            TogglePRButton(PRStatuses.Pause);
+            ToggleStopButton(true);
             ResetCommandList();
-            var list = App.LangLineProgram.InterpreterModule.CommandList;
             App.LangLineProgram.StartProgram();
-            list = App.LangLineProgram.InterpreterModule.CommandList;
             var positions = App.LangLineProgram.MainField.GetPositions();
             App.MainGrid.UpdatePositions(positions);
             App.MainGrid.StartMovement();
@@ -200,10 +224,6 @@ namespace GridLine_IDE
             CurrentIntervalText.Text = value + " мс";
         }
 
-        private void StopButtonClicked(object sender, MouseButtonEventArgs e)
-        {
-            App.MainGrid.StopMovement();
-        }
 
         private void CodeInputKeyDown(object sender, KeyEventArgs e)
         {
@@ -221,13 +241,6 @@ namespace GridLine_IDE
             {
                 e.Handled = true;
                 ((RichTextBox)sender).Document.Blocks.Add(new Paragraph());
-            }
-
-            else if (e.KeyboardDevice.Modifiers == ModifierKeys.Control
-                && e.Key == Key.Enter)
-            {
-                e.Handled = true;
-                StartProgram();
             }
         }
 
@@ -276,5 +289,138 @@ namespace GridLine_IDE
             }
         }
 
+        private void CodeInputCaretChanged(object sender, RoutedEventArgs e)
+        {
+            TextPointer tp1 = CodeInput.Selection.Start.GetLineStartPosition(0);
+            TextPointer tp2 = CodeInput.Selection.Start;
+
+            int column = tp1.GetOffsetToPosition(tp2);
+
+            int someBigNumber = int.MaxValue;
+            int lineMoved, currentLineNumber;
+            CodeInput.Selection.Start.GetLineStartPosition(-someBigNumber, out lineMoved);
+            currentLineNumber = -lineMoved;
+
+            CodeInputStatus.Text = $"Строка {currentLineNumber+1}, символ {(column < 1 ? 1 : column)}";
+        }
+
+        private void ToggleStopButton(bool flag)
+        {
+            var template = StopButton.Template;
+
+            var StopImage = (Image)template.FindName("StopImage", StopButton);
+            var StopText = (TextBlock)template.FindName("StopText", StopButton);
+
+            if (flag)
+            {
+                StopImage.Source = (BitmapImage)App.Current.FindResource("StopImage");
+                StopText.Foreground = Brushes.White;
+                StopButton.IsEnabled = true;
+            } else
+            {
+                StopImage.Source = (BitmapImage)App.Current.FindResource("StopDisabledImage");
+                StopText.Foreground = Brushes.Gray;
+                StopButton.IsEnabled = false;
+            }
+        }
+        
+        private bool IsPaused = false;
+        private void TogglePRButton(PRStatuses flag)
+        {
+            var template = PauseResumeButton.Template;
+
+            var PRImage = (Image)template.FindName("PauseResumeImage", PauseResumeButton);
+            var PRText = (TextBlock)template.FindName("PauseResumeText", PauseResumeButton);
+
+
+            if (flag == PRStatuses.Resume)
+            {
+                PRImage.Source = (BitmapImage)App.Current.FindResource("ResumeImage");
+                PauseResumeButton.IsEnabled = true;
+                PRText.Foreground = Brushes.White;
+                PRText.Text = "Возобновить";
+                IsPaused = true;
+            } else if(flag == PRStatuses.Pause)
+            {
+                PRImage.Source = (BitmapImage)App.Current.FindResource("PauseImage");
+                PauseResumeButton.IsEnabled = true;
+                PRText.Foreground = Brushes.White;
+                PRText.Text = "Остановить";
+                IsPaused = false;
+            } else
+            {
+                PRImage.Source = (BitmapImage)App.Current.FindResource("ResumeDisabledImage");
+                PauseResumeButton.IsEnabled = false;
+                PRText.Foreground = Brushes.Gray;
+                PRText.Text = "Возобновить";
+            }
+        }
+
+        private void StopButtonClicked(object sender, RoutedEventArgs e)
+        {
+            App.MainGrid.StopMovement();
+        }
+
+        private void PauseResumeButtonClick(object sender, RoutedEventArgs e)
+        {
+            TogglePR();
+        }
+
+        private void TogglePR()
+        {
+            if (PauseResumeButton.IsEnabled) {
+                IsPaused = !IsPaused;
+                if (IsPaused)
+                {
+                    TogglePRButton(PRStatuses.Resume);
+                    App.MainGrid.Pause();
+                }
+                else
+                {
+                    TogglePRButton(PRStatuses.Pause);
+                    App.MainGrid.Resume();
+                }
+            }
+        }
+
+        private void WindowPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyboardDevice.Modifiers == ModifierKeys.Control)
+            {
+                if (e.Key == Key.Space)
+                {
+                    TogglePR();
+                }
+
+                if (e.Key == Key.Enter)
+                {
+                    e.Handled = true;
+                    StartProgram();
+                }
+
+                if(e.Key == Key.Right)
+                {
+                    StepForward();
+                }
+
+                if(e.Key == Key.Left)
+                {
+                    StepBackward();
+                }
+            }
+        }
+
+        private void StepForward() => App.MainGrid.StepForward();
+        private void StepBackward() => App.MainGrid.StepBackward();
+
+        private void ClickBackward(object sender, RoutedEventArgs e)
+        {
+            StepBackward();
+        }
+
+        private void ClickForward(object sender, RoutedEventArgs e)
+        {
+            StepForward();
+        }
     }
 }

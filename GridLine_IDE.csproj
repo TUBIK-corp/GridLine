@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Grid_Line.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="LangLine, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\LangLine.1.0.4.2\lib\net48\LangLine.dll</HintPath>
@@ -66,6 +69,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Enums\PRStatuses.cs" />
     <Compile Include="Helpers\GridHelper.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -103,6 +107,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
+    <Resource Include="Images\Step_Back.png" />
+    <Resource Include="Images\Step_Forward.png" />
+    <Resource Include="Images\Pause.png" />
+    <Resource Include="Images\Najata.png" />
+    <Resource Include="Images\Stop.png" />
+    <Resource Include="Images\stop_disabled.png" />
+    <Resource Include="Images\Pusk.png" />
+    <Resource Include="Images\Resume.png" />
+    <Resource Include="Grid_Line.ico" />
     <Resource Include="Images\LangLine_Large.png" />
     <Resource Include="Images\LangLine_Small.png" />
     <Resource Include="Images\LangLine_Very_Small.png" />

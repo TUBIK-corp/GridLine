@@ -4,6 +4,13 @@
              xmlns:local="clr-namespace:GridLine_IDE"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <BitmapImage x:Key="PuskImage" UriSource="Images/Pusk.png"/>
+        <BitmapImage x:Key="StopImage" UriSource="Images/Stop.png"/>
+        <BitmapImage x:Key="StopDisabledImage" UriSource="Images/stop_disabled.png"/>
+        <BitmapImage x:Key="ResumeDisabledImage" UriSource="Images/Najata.png"/>
+        <BitmapImage x:Key="ResumeImage" UriSource="Images/Resume.png"/>
+        <BitmapImage x:Key="PauseImage" UriSource="Images/Pause.png"/>
+        <BitmapImage x:Key="ForwardImage" UriSource="Images/Step_Forward.png"/>
+        <BitmapImage x:Key="BackwardImage" UriSource="Images/Step_Back.png"/>
     </Application.Resources>
 </Application>
