@@ -12,5 +12,6 @@
         <BitmapImage x:Key="PauseImage" UriSource="Images/Pause.png"/>
         <BitmapImage x:Key="ForwardImage" UriSource="Images/Step_Forward.png"/>
         <BitmapImage x:Key="BackwardImage" UriSource="Images/Step_Back.png"/>
+        <BitmapImage x:Key="UserImage" UriSource="Images/Robot_Vacuum_Cleaner_Blue.png"/>
     </Application.Resources>
 </Application>

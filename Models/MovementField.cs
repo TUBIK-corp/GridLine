@@ -4,6 +4,8 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using static System.Net.Mime.MediaTypeNames;
+using System.Windows.Media.Imaging;
 
 namespace GridLine_IDE.Models
 {
@@ -15,7 +17,7 @@ namespace GridLine_IDE.Models
         public event MovementEvent Moved;
 
         public Grid Field { get; private set; }
-        public Border UserVisual { get; private set; }
+        public System.Windows.Controls.Image UserVisual { get; private set; }
         public List<Point> Positions { get; private set; }
 
 
@@ -27,12 +29,13 @@ namespace GridLine_IDE.Models
         {
             Field = grid;
             Positions = new List<Point>() { new Point(0, 0) };
-            UserVisual = new Border();
+            UserVisual = new System.Windows.Controls.Image();
             UserVisual.Margin = new System.Windows.Thickness(4);
-            UserVisual.Background = Brushes.Red;
             UserVisual.VerticalAlignment = System.Windows.VerticalAlignment.Stretch;
             UserVisual.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
+            UserVisual.Source = (BitmapImage)App.Current.FindResource("UserImage");
             object c = new object();
+
             Field.Children.Add(UserVisual);
 
             timer = new Timer(10);
@@ -46,12 +49,13 @@ namespace GridLine_IDE.Models
             Tick += 10;
             if (Tick % App.ExecutionInterval == 0)
             {
-                if (Iterator+1 >= Positions.Count)
+                if (Iterator >= Positions.Count)
                 {
-                    //Iterator--;
+                    Iterator--;
                     timer.Stop();
                     Tick = 0;
                     EndMove();
+                    Moved?.Invoke();
                     return;
                 }
                 UpdateUI(Iterator);
@@ -119,7 +123,7 @@ namespace GridLine_IDE.Models
 
         public void UpdateUI(int index)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
                 Grid.SetColumn(UserVisual, (int)Positions[index].X);
                 Grid.SetRow(UserVisual, (int)Positions[index].Y);
@@ -127,7 +131,7 @@ namespace GridLine_IDE.Models
         }
         public void ReloadUI()
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
                 Grid.SetColumn(UserVisual, 0);
                 Grid.SetRow(UserVisual, 0);

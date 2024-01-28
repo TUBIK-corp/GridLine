@@ -145,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
+    <Resource Include="Images\Robot_Vacuum_Cleaner_Blue.png" />
     <Resource Include="Images\Step_Back.png" />
     <Resource Include="Images\Step_Forward.png" />
     <Resource Include="Images\Pause.png" />
