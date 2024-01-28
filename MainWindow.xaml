@@ -92,7 +92,12 @@
         </Grid.RowDefinitions>
         <Border VerticalAlignment="Center" Background="#25252f" BorderThickness="1" BorderBrush="#13131a" Grid.Row="1">
             <StackPanel Orientation="Horizontal" >
-                <TextBlock Text="GridLine IDE" VerticalAlignment="Center" Foreground="White" Margin="20 0 20 0"/>
+                <TextBlock Text="GridLine IDE" VerticalAlignment="Center" Foreground="White" Margin="20 0 10 0"/>
+                <TextBlock x:Name="SavedStatus" VerticalAlignment="Center" Text="*" Foreground="White" Margin="0 0 10 0" FontSize="12" FontWeight="Bold" Visibility="Hidden">
+                    <TextBlock.ToolTip>
+                        <ToolTip Content="Есть несохранённые изменения"/>
+                    </TextBlock.ToolTip>
+                </TextBlock>
                 <Button Background="#25252f" BorderThickness="0" Click="StartClicked" Style="{DynamicResource ControlButton}">
                     <Button.Template>
                         <ControlTemplate>
@@ -104,7 +109,9 @@
                             </Border>
                         </ControlTemplate>
                     </Button.Template>
-
+                    <Button.ToolTip>
+                        <ToolTip Content="Ctrl+Enter" Foreground="Gray"/>
+                    </Button.ToolTip>
                 </Button>
                 <Button Background="#25252f"  x:Name="StopButton" Click="StopButtonClicked" IsEnabled="False" BorderThickness="0" Style="{DynamicResource ControlButton}">
                     <Button.Template>
@@ -128,10 +135,13 @@
                             </StackPanel>
                         </ControlTemplate>
                     </Button.Template>
+                    <Button.ToolTip>
+                        <ToolTip Content="Ctrl+Space" Foreground="Gray"/>
+                    </Button.ToolTip>
                 </Button>
                 <Button Style="{DynamicResource ControlButton}" Click="ClickBackward">
                     <Button.ToolTip>
-                        <ToolTip Content="Шаг назад"/>
+                        <ToolTip Content="Шаг назад (Ctrl+←)"/>
                     </Button.ToolTip>
                     <Button.Template>
                         <ControlTemplate>
@@ -141,7 +151,7 @@
                 </Button>
                 <Button Style="{DynamicResource ControlButton}" Click="ClickForward">
                     <Button.ToolTip>
-                        <ToolTip Content="Шаг вперед"/>
+                        <ToolTip Content="Шаг вперед (Ctrl+→)"/>
                     </Button.ToolTip>
                     <Button.Template>
                         <ControlTemplate>
@@ -149,6 +159,8 @@
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
+                <TextBlock Foreground="White" Margin="5 0 1 0" Text="Шаг: " VerticalAlignment="Center"/>
+                <TextBlock Foreground="White" Margin="1 0 5 0" Text="0 из 0" x:Name="StepStatus" VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
 
@@ -170,14 +182,33 @@
                 </Style>
             </Menu.Style>
             <MenuItem Header="Файл" Background="Transparent" Style="{DynamicResource ParentMenuItem}">
-                <MenuItem Header="Открыть" Style="{StaticResource MenuItemStyle}"/>
-                <MenuItem Header="Импорт" Style="{StaticResource MenuItemStyle}"/>
-                <MenuItem Header="Экспорт" Style="{StaticResource MenuItemStyle}"/>
-                <MenuItem Header="Сохранить в БД" Style="{StaticResource MenuItemStyle}"/>
-                <MenuItem Header="Сохранить на диске" Style="{StaticResource MenuItemStyle}"/>
+                <MenuItem Header="Открыть" Style="{StaticResource MenuItemStyle}" Click="OpenFileClicked">
+                    <MenuItem.ToolTip>
+                        <ToolTip Foreground="Gray" Content="Ctrl+O"/>
+                    </MenuItem.ToolTip>
+                </MenuItem>
+                <MenuItem Header="Сохранить" Style="{StaticResource MenuItemStyle}" Click="SaveChangesClicked">
+                    <MenuItem.ToolTip>
+                        <ToolTip Foreground="Gray" Content="Ctrl+S"/>
+                    </MenuItem.ToolTip>
+                </MenuItem>
+                <MenuItem Header="Сохранить как..." Style="{StaticResource MenuItemStyle}" Click="SaveChangesAsClicked">
+                    <MenuItem.ToolTip>
+                        <ToolTip Foreground="Gray" Content="Ctrl+Shift+S"/>
+                    </MenuItem.ToolTip>
+                </MenuItem>
+                <!--<MenuItem Header="Импорт" Style="{StaticResource MenuItemStyle}"/>
+                <MenuItem Header="Экспорт" Style="{StaticResource MenuItemStyle}"/>-->
+                <MenuItem Header="Открыть в базе данных" Style="{StaticResource MenuItemStyle}" Click="OpenInBDClicked"/>
+                <MenuItem Header="Сохранить в базе данных" Style="{StaticResource MenuItemStyle}" Click="SaveToDBClicked"/>
+                
             </MenuItem>
-            <MenuItem Header="Дополнительно" Background="Transparent"  Style="{DynamicResource ParentMenuItem}">
-                <MenuItem Header="Справка" Style="{StaticResource MenuItemStyle}"/>
+            <MenuItem Header="Дополнительно" Background="Transparent"  Style="{DynamicResource ParentMenuItem}" Click="HelpClicked">
+                <MenuItem Header="Справка" Style="{StaticResource MenuItemStyle}">
+                    <MenuItem.ToolTip>
+                        <ToolTip Foreground="Gray" Content="F1"/>
+                    </MenuItem.ToolTip>
+                </MenuItem>
             </MenuItem>
         </Menu>
 
@@ -227,7 +258,7 @@
                     <RowDefinition Height="10*"/>
                     <RowDefinition Height="15"/>
                 </Grid.RowDefinitions>
-                <RichTextBox Background="#21212a" BorderThickness="0" SelectionChanged="CodeInputCaretChanged" Grid.Row="0" Margin="5 5 5 1" x:Name="CodeInput" Foreground="White" AcceptsReturn="True" PreviewKeyDown="CodeInputKeyDown" PreviewMouseWheel="CodeInputPreviewMouseWheel">
+                <RichTextBox Background="#21212a" BorderThickness="0" TextChanged="CodeInputCodeChanged" SelectionChanged="CodeInputCaretChanged" Grid.Row="0" Margin="5 5 5 1" x:Name="CodeInput" Foreground="White" AcceptsReturn="True" PreviewKeyDown="CodeInputKeyDown" PreviewMouseWheel="CodeInputPreviewMouseWheel">
                     <RichTextBox.Resources>
                         <Style TargetType="{x:Type Paragraph}">
                             <Setter Property="Margin" Value="0"/>
@@ -263,14 +294,14 @@
                             <ColumnDefinition Width="3*"/>
                             <ColumnDefinition Width="0.5*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" TextAlignment="Center"  Text="Интервал (мс)" Foreground="White" />
-                        <Slider Grid.Column="1" x:Name="CurrentIntervalSlider" ValueChanged="CurrentIntervalValueChanged" Value="10" VerticalAlignment="Center" Minimum="1" Maximum="200" Margin="20 0 20 0" />
+                        <TextBlock Grid.Column="0" TextAlignment="Center"  Text="Скорость (мс)" Foreground="White" />
+                        <Slider Grid.Column="1" x:Name="CurrentIntervalSlider" ValueChanged="CurrentIntervalValueChanged" Value="10" VerticalAlignment="Center" Minimum="1" Maximum="100" Margin="20 0 20 0" />
                         <TextBlock Grid.Column="2" x:Name="CurrentIntervalText"  TextAlignment="Center" Text="100 мс" Foreground="White" />
                     </Grid>
                 </Grid>
-                <Border Grid.Row="1" Background="LightGray" VerticalAlignment="Bottom" Margin="20" x:Name="FieldBorder" BorderBrush="Black" BorderThickness="2">
+                <Border Grid.Row="1" Background="#9a9aa3" VerticalAlignment="Bottom" Margin="20" x:Name="FieldBorder" BorderBrush="Black" BorderThickness="2">
                     <Viewbox Stretch="Uniform">
-                        <ScrollViewer x:Name="FieldScroll" PreviewMouseWheel="FieldScroll_PreviewMouseWheel" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" SnapsToDevicePixels="True" Background="LightGray" Height="512" Width="512">
+                        <ScrollViewer x:Name="FieldScroll" PreviewMouseWheel="FieldScroll_PreviewMouseWheel" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" SnapsToDevicePixels="True" Background="#9a9aa3" Height="770" Width="770">
 
                             <Grid  x:Name="Field" >
                                 <Grid.RenderTransform>

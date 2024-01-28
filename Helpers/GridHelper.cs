@@ -10,7 +10,7 @@ namespace IspolnitelCherepashka.Helpers
 {
     public static class GridHelper
     {
-        public static int Step = 24;
+        public static int Step = 36;
         public static Grid CreateGrid(int w_pixels, int h_pixels)
         {
             Grid grid = new Grid();

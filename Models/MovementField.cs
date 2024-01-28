@@ -10,8 +10,9 @@ namespace GridLine_IDE.Models
     public class MovementField
     {
 
-        public delegate void EndMovement();
-        public event EndMovement MoveEnded;
+        public delegate void MovementEvent();
+        public event MovementEvent MoveEnded;
+        public event MovementEvent Moved;
 
         public Grid Field { get; private set; }
         public Border UserVisual { get; private set; }
@@ -45,9 +46,9 @@ namespace GridLine_IDE.Models
             Tick += 10;
             if (Tick % App.ExecutionInterval == 0)
             {
-                if (Iterator >= Positions.Count)
+                if (Iterator+1 >= Positions.Count)
                 {
-                    Iterator--;
+                    //Iterator--;
                     timer.Stop();
                     Tick = 0;
                     EndMove();
@@ -55,7 +56,13 @@ namespace GridLine_IDE.Models
                 }
                 UpdateUI(Iterator);
                 Iterator++;
+                Moved?.Invoke();
             }
+        }
+
+        public int GetCurrentMoveIndex()
+        {
+            return Iterator;
         }
 
         public void Pause() => timer.Stop();
@@ -94,16 +101,17 @@ namespace GridLine_IDE.Models
             if (Iterator > 0)
             {
                 Iterator--;
+                Moved?.Invoke();
                 UpdateUI(Iterator);
             }
         }
         
         public void StepForward()
         {
-
             if (Iterator < Positions.Count-1)
             {
                 Iterator++;
+                Moved?.Invoke();
                 UpdateUI(Iterator);
             }
         }

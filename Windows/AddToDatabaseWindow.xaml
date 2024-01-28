@@ -1,0 +1,63 @@
+﻿<Window x:Class="GridLine_IDE.Windows.AddToDatabaseWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GridLine_IDE.Windows"
+        mc:Ignorable="d"
+        Title="GridLine IDE - Добавление в базу данных" Height="250" Width="300" MaxHeight="450" MaxWidth="600" PreviewKeyDown="OnKeyDown">
+    <Window.Resources>
+        <Style x:Key="ControlButton" TargetType="Button">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="BorderBrush" Value="#25252f"/>
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                        <Condition Property="IsEnabled" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="BorderBrush" Value="#92929f"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="False"/>
+                        <Condition Property="IsEnabled" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="BorderBrush" Value="#25252f"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Grid Background="#31313d">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="1" Foreground="White" Text="Сохранить в базу данных" TextAlignment="Center" FontSize="15" FontWeight="Bold"/>
+        <TextBlock Grid.Row="2" Foreground="LightGray" Text="Добавить текущую программу в базу данных" TextAlignment="Center" FontSize="12"/>
+        <TextBlock Grid.Row="3" VerticalAlignment="Center" Foreground="White" Text="Название программы: " TextAlignment="Center" FontSize="15"/>
+        <TextBox Foreground="White" Grid.Row="4" TextChanged="ProgramNameChanged" Background="#21212a" Margin="10 2 10 2" TextAlignment="Center" x:Name="ProgramNameBox" Padding="3" VerticalAlignment="Center" BorderThickness="0"/>
+        <TextBlock Grid.Row="5" Text="" TextAlignment="Center" VerticalAlignment="Center" Foreground="Red" x:Name="ProgramNameStatus"/>
+        <Button Style="{DynamicResource ControlButton}" x:Name="SendButton" Grid.Row="6" IsEnabled="False" Background="#23232a" Margin="20 2 20 2" Click="SaveToDBClicked">
+            <Button.Template>
+                <ControlTemplate>
+                    <Border Background="#23232a"  BorderThickness="1">
+                        <TextBlock Text="Отправить" TextAlignment="Center" Foreground="White" x:Name="SendButtonText" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                    </Border>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+
+    </Grid>
+</Window>

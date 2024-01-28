@@ -1,23 +1,22 @@
 ﻿using GridLine_IDE.Enums;
+using GridLine_IDE.Helpers;
 using GridLine_IDE.Models;
 using GridLine_IDE.NewCommands;
+using GridLine_IDE.Windows;
 using IspolnitelCherepashka.Helpers;
 using LangLine.Models;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Remoting.Messaging;
-using System.Threading;
+using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
-using System.Windows.Documents.DocumentStructures;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Media.Media3D;
 using System.Windows.Threading;
 using ExceptionEventArgs = LangLine.Models.ExceptionEventArgs;
 namespace GridLine_IDE
@@ -27,8 +26,6 @@ namespace GridLine_IDE
     /// </summary>
     public partial class MainWindow : Window
     {
-        //public List<LangLine.> CommandList;
-
         public MainWindow()
         {
             App.LangLineProgram = new LangLine.LangLineCore(21, 21);
@@ -38,21 +35,31 @@ namespace GridLine_IDE
                  true // Handler will be called even though e.Handled = true
                 );
             App.LangLineProgram.InterpreterModule.OnCompleted += ProgramCompleted;
-            App.LangLineProgram.InterpreterModule.OnException += ProgramException; ;
+            App.LangLineProgram.InterpreterModule.OnException += ProgramException;
             App.MainGrid = new MovementField(GridHelper.CreateGrid(App.LangLineProgram.MainField.Width, App.LangLineProgram.MainField.Height));
             Field.Children.Add(App.MainGrid.Field);
             App.MainGrid.MoveEnded += GridMoveEnded;
+            App.MainGrid.Moved += UpdateStatus;
 
-            //new Thread(() => { while (true) {Thread.Sleep(100);  Console.WriteLine(App.LangLineProgram.StackTrace.Count); } }).Start();
-            //try
-            //{
-            //    App.LangLineProgram.LogException(new ExceptionLog(1, new Exception()));
-            //} catch
-            //{
-            //
-            //}
             App.LangLineProgram.RegisterCommand("LOG", typeof(LogCommand));
             SetupProgram();
+        }
+
+        private void UpdateStatus()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                var currentIndex = App.MainGrid.GetCurrentMoveIndex();
+                var maxIndex = App.MainGrid.Positions.Count - 1;
+
+                StepStatus.Text = $"{(currentIndex > -1 ? currentIndex : 0)} из {(maxIndex > -1 ? maxIndex : 0)}";
+            });
+        }
+
+        public void TestDatabase()
+        {
+           var name = DatabaseHelper.AddTestProgram();
+           MessageBox.Show(name);
         }
 
         private void GridMoveEnded()
@@ -115,6 +122,7 @@ namespace GridLine_IDE
             {
                 Dispatcher.Invoke(() =>
                 {
+                    UpdateStatus();
                     var stacktrace = App.LangLineProgram.StackTrace;
                     stacktrace.Reverse();
 
@@ -140,7 +148,6 @@ namespace GridLine_IDE
                     var arg = args;
                     ConsoleWrite(exceptionParagraph);
                     ProgramResultBox.Foreground = Brushes.Red;
-                    ProgramResultBox.TextDecorations = TextDecorations.Underline;
                     ProgramResultBox.Text = $"{stacktrace.Last().Exception.Message}";
                 });
             } catch(Exception ex)
@@ -159,6 +166,7 @@ namespace GridLine_IDE
 
         public void ResetCommandList()
         {
+            //TestDatabase();
             int i = 0;
             foreach (Paragraph paragraph in CodeInput.Document.Blocks.ToList())
             {
@@ -168,7 +176,6 @@ namespace GridLine_IDE
             }
             ProgramResultBox.Foreground = Brushes.White;
             ProgramResultBox.Text = "";
-            ProgramResultBox.TextDecorations = TextDecorations.Baseline;
             App.LangLineProgram.SetCommandsFromFlowDocument(CodeInput.Document);
         }
 
@@ -345,7 +352,7 @@ namespace GridLine_IDE
                 PRImage.Source = (BitmapImage)App.Current.FindResource("PauseImage");
                 PauseResumeButton.IsEnabled = true;
                 PRText.Foreground = Brushes.White;
-                PRText.Text = "Остановить";
+                PRText.Text = "Пауза";
                 IsPaused = false;
             } else
             {
@@ -382,6 +389,41 @@ namespace GridLine_IDE
                 }
             }
         }
+        private bool _hasChanges = false;
+
+        public bool HasChanges 
+        { 
+            get => _hasChanges; 
+            set
+            {
+                _hasChanges = value;
+                ChangeSavedStatus();
+            }
+        }
+
+        public void ChangeSavedStatus()
+        {
+            if(HasChanges)
+                SavedStatus.Visibility = Visibility.Visible;
+            else SavedStatus.Visibility = Visibility.Hidden;
+        }
+
+        private string _openedPath = string.Empty;
+
+        public string OpenedPath { 
+            get => _openedPath; 
+            set
+            {
+                _openedPath = value;
+                ChangeTitleWithPath();
+            } 
+        }
+
+        public void ChangeTitleWithPath()
+        {
+            if(!Title.Equals("GridLine IDE - " + OpenedPath))
+                Title = "GridLine IDE - " + OpenedPath;
+        }
 
         private void WindowPreviewKeyDown(object sender, KeyEventArgs e)
         {
@@ -389,6 +431,7 @@ namespace GridLine_IDE
             {
                 if (e.Key == Key.Space)
                 {
+                    e.Handled = true;
                     TogglePR();
                 }
 
@@ -398,15 +441,55 @@ namespace GridLine_IDE
                     StartProgram();
                 }
 
-                if(e.Key == Key.Right)
+                if (e.Key == Key.Right)
                 {
                     StepForward();
+                    e.Handled = true;
                 }
 
-                if(e.Key == Key.Left)
+                if (e.Key == Key.Left)
                 {
                     StepBackward();
+                    e.Handled = true;
                 }
+
+                if (e.Key == Key.S)
+                {
+                    SaveChanges();
+                    e.Handled = true;
+                }
+                if (e.Key == Key.O)
+                {
+                    OpenFile();
+                    e.Handled = true;
+                }
+            }
+            else if (e.KeyboardDevice.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+            {
+                if (e.Key == Key.S)
+                {
+                    SaveChanges(true);
+                    e.Handled = true;
+                }
+            } else if(e.Key == Key.F1)
+            {
+                OpenHelpMenu();
+            }
+        }
+
+        public void OpenHelpMenu()
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "https://github.com/TUBIK-corp/GridLine",
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при открытии справки: {ex.Message}");
             }
         }
 
@@ -421,6 +504,160 @@ namespace GridLine_IDE
         private void ClickForward(object sender, RoutedEventArgs e)
         {
             StepForward();
+        }
+
+        private void SaveChangesClicked(object sender, RoutedEventArgs e)
+        {
+            SaveChanges();
+        }
+
+
+        public bool SaveFile(bool ignoreCreated = false)
+        {
+            if (string.IsNullOrWhiteSpace(OpenedPath) || ignoreCreated)
+            {
+                using (System.Windows.Forms.SaveFileDialog saveFileDialog = new System.Windows.Forms.SaveFileDialog())
+                {
+                    saveFileDialog.InitialDirectory = Environment.CurrentDirectory;
+                    saveFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+                    saveFileDialog.RestoreDirectory = true;
+
+                    if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        OpenedPath = saveFileDialog.FileName;
+                    } else
+                    {
+                        return false;
+                    }
+                }
+            }
+            if (!File.Exists(OpenedPath))
+            {
+                File.Create(OpenedPath).Close();
+            }
+            File.WriteAllLines(OpenedPath, GetCommandLines());
+            HasChanges = false;
+            return true;
+        }
+
+        public void OpenFile()
+        {
+            using (System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog())
+            {
+                openFileDialog.InitialDirectory = Environment.CurrentDirectory;
+                openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+                openFileDialog.RestoreDirectory = true;
+
+                if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    OpenedPath = openFileDialog.FileName;
+                }
+            }
+            if (HasChanges)
+            {
+                var messageBox = MessageBox.Show("У вас остались несохранённые изменения. Сохранить их?", "Внимание!", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+                if (messageBox == MessageBoxResult.Yes)
+                {
+                    SaveFile();
+                }
+                else if (messageBox == MessageBoxResult.Cancel)
+                {
+                    return;
+                }
+            }
+
+            CodeInput.Document = new FlowDocument();
+            foreach (string line in File.ReadAllLines(OpenedPath))
+            {
+                var paragraph = new Paragraph();
+                paragraph.Inlines.Add(line.Trim('\n').Trim('\r'));
+                CodeInput.Document.Blocks.Add(paragraph);
+            }
+            HasChanges = false;
+            ToggleStopButton(false);
+            TogglePRButton(PRStatuses.DisabledResume);
+        }
+
+        public List<string> GetCommandLines()
+        {
+            var list = new List<string>(); 
+            foreach (Paragraph paragraph in CodeInput.Document.Blocks)
+            {
+                string text = new TextRange(paragraph.ContentStart, paragraph.ContentEnd).Text;
+                text = text.TrimEnd('\n').TrimEnd('\r').Replace('\\', '/');
+                list.Add(text);
+            }
+            return list;
+        }
+
+        public void SaveChanges(bool ignoreCreated = false)
+        {
+            if (HasChanges)
+            {
+                SaveFile(ignoreCreated);
+            }
+        }
+
+        private void CodeInputCodeChanged(object sender, TextChangedEventArgs e)
+        {
+            if(!Keyboard.IsKeyDown(Key.LeftCtrl) 
+                && !Keyboard.IsKeyDown(Key.RightCtrl))
+                HasChanges = true;
+        }
+
+        private void OpenFileClicked(object sender, RoutedEventArgs e)
+        {
+            OpenFile();
+        }
+
+        private void SaveChangesAsClicked(object sender, RoutedEventArgs e)
+        {
+            SaveFile(true);
+        }
+
+        private void OpenInBDClicked(object sender, RoutedEventArgs e)
+        {
+            OpenFromDatabaseWindow window = new OpenFromDatabaseWindow();
+            window.ShowDialog();
+            if(window.GetProgram() != null)
+            {
+                if (HasChanges)
+                {
+                    var messageBox = MessageBox.Show("У вас остались несохранённые изменения. Сохранить их?", "Внимание!", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+                    if (messageBox == MessageBoxResult.Yes)
+                    {
+                        if (!SaveFile())
+                            return;
+                    }
+                    else if (messageBox == MessageBoxResult.Cancel)
+                    {
+                        return;
+                    }
+                }
+                CodeInput.Document = new FlowDocument();
+                foreach (string line in window.GetProgram().Code.Split('\n'))
+                {
+                    var paragraph = new Paragraph();
+                    paragraph.Inlines.Add(line.Trim('\n').Trim('\r'));
+                    CodeInput.Document.Blocks.Add(paragraph);
+                }
+
+                HasChanges = true;
+                ToggleStopButton(false);
+                TogglePRButton(PRStatuses.DisabledResume);
+            }
+
+        }
+
+        private void SaveToDBClicked(object sender, RoutedEventArgs e)
+        {
+            AddToDatabaseWindow window = new AddToDatabaseWindow(GetCommandLines());
+            window.ShowDialog();
+        }
+
+        private void HelpClicked(object sender, RoutedEventArgs e)
+        {
+            OpenHelpMenu();
         }
     }
 }

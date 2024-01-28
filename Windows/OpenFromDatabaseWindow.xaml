@@ -1,0 +1,63 @@
+﻿<Window x:Class="GridLine_IDE.Windows.OpenFromDatabaseWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GridLine_IDE.Windows"
+        mc:Ignorable="d"
+        Title="GridLine - открыть программу из базы данных" Height="500" Width="450" Closing="CloseClicked">
+    <Window.Resources>
+        <Style x:Key="ControlButton" TargetType="Button">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="BorderBrush" Value="#25252f"/>
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                        <Condition Property="IsEnabled" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="BorderBrush" Value="#92929f"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="False"/>
+                        <Condition Property="IsEnabled" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="BorderBrush" Value="#25252f"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Grid Background="#32323a">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="5*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Foreground="White" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="20" Text="Открыть из базы данных"/>
+        
+        <ListBox x:Name="SelectBox" Grid.Row="1" Background="#23232a" BorderThickness="0" SelectionChanged="SelectionChanged" SelectionMode="Single">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Background="Transparent" Margin="5 10 5 10">
+                        <TextBlock Text="{Binding Path=ID, StringFormat={}{0}}" Margin="10 0 10 0" FontSize="15" Foreground="White"/>
+                        <TextBlock Text="{Binding Name}" FontSize="15" Margin="10 0 10 0" Foreground="White" FontWeight="Bold"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Content="Открыть" Style="{DynamicResource ControlButton}" Grid.Row="3" Margin="20 20 20 20" IsEnabled="False" x:Name="OpenButton" Click="SelectButton">
+            <Button.Template>
+                <ControlTemplate>
+                    <Border  BorderThickness="1" Background="#23232a" >
+                        <TextBlock Text="Открыть" TextAlignment="Center" Foreground="Gray" x:Name="BlockTextOfSend"  VerticalAlignment="Center" Margin="0 0 5 0"/>
+                    </Border>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+    </Grid>
+</Window>
