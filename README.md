@@ -24,22 +24,22 @@ GridLine IDE имеет удобный и интуитивный интерфе�
 Вот пример программы на LangLine, которая заставляет исполнителя обойти сетку по периметру:
 ```
 PROCEDURE HelloWorld
-IFBLOCK RIGHT
-DOWN 1
-ENDIF
-IFBLOCK DOWN
-LEFT 1
-ENDIF
-IFBLOCK UP
-RIGHT 1
-ENDIF
-IFBLOCK LEFT
-UP 1
-ENDIF
+  IFBLOCK RIGHT
+    DOWN 2
+  ENDIF
+  IFBLOCK DOWN
+    LEFT 2
+  ENDIF
+  IFBLOCK UP
+    RIGHT 2
+  ENDIF
+  IFBLOCK LEFT
+    UP 2
+  ENDIF
 ENDPROC
 
 REPEAT 78
-CALL HelloWorld
+  CALL HelloWorld
 ENDREPEAT
 ```
 
