@@ -1,6 +1,6 @@
 <p align="center">
     <br>
-      <img src="Images/LangLine_Small.png"  width=25%  align="center"/>
+      <img src="Assets/Grid_Line_Normal.png"  width=25%  align="center"/>
       <h1 align="center">GridLine IDE</h1>
     <br>
 <p>
