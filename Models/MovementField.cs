@@ -30,7 +30,7 @@ namespace GridLine_IDE.Models
             Field = grid;
             Positions = new List<Point>() { new Point(0, 0) };
             UserVisual = new System.Windows.Controls.Image();
-            UserVisual.Margin = new System.Windows.Thickness(4);
+            UserVisual.Margin = new System.Windows.Thickness(2);
             UserVisual.VerticalAlignment = System.Windows.VerticalAlignment.Stretch;
             UserVisual.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
             UserVisual.Source = (BitmapImage)App.Current.FindResource("UserImage");

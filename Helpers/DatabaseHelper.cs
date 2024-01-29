@@ -6,6 +6,7 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Xml.Linq;
 
 namespace GridLine_IDE.Helpers
@@ -79,11 +80,17 @@ namespace GridLine_IDE.Helpers
         public static string ConnectionString = string.Empty;
         public static void InitDB()
         {
-            var folder = Environment.CurrentDirectory;
-            ConnectionString = $"Data Source={System.IO.Path.Combine(folder, "database.db")}";
-            var create = "CREATE TABLE IF NOT EXISTS Programs(ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT NOT NULL, Code TEXT NOT NULL)";
-            
-            SendNonQuery(create);
+            try
+            {
+                var folder = Environment.CurrentDirectory;
+                ConnectionString = $"Data Source={System.IO.Path.Combine(folder, "database.db")}";
+                var create = "CREATE TABLE IF NOT EXISTS Programs(ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT NOT NULL, Code TEXT NOT NULL)";
+
+                SendNonQuery(create);
+            } catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private static List<T> SendReadQuery<T>(string commandText) where T : new()

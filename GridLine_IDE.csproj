@@ -48,7 +48,7 @@
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="LangLine, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\LangLine.1.0.4.2\lib\net48\LangLine.dll</HintPath>
+      <HintPath>..\packages\LangLine.1.0.5\lib\net48\LangLine.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -145,6 +145,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
+    <Resource Include="Images\LangLine_Large.png" />
+    <Resource Include="Images\LangLine_Small.png" />
+    <Resource Include="Images\LangLine_Very_Small.png" />
+    <Resource Include="Images\pomni_test.png" />
     <Resource Include="Images\Robot_Vacuum_Cleaner_Blue.png" />
     <Resource Include="Images\Step_Back.png" />
     <Resource Include="Images\Step_Forward.png" />
@@ -155,9 +159,6 @@
     <Resource Include="Images\Pusk.png" />
     <Resource Include="Images\Resume.png" />
     <Resource Include="Grid_Line.ico" />
-    <Resource Include="Images\LangLine_Large.png" />
-    <Resource Include="Images\LangLine_Small.png" />
-    <Resource Include="Images\LangLine_Very_Small.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
