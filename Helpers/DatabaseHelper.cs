@@ -78,7 +78,7 @@ namespace GridLine_IDE.Helpers
         }
 
         public static string ConnectionString = string.Empty;
-        public static void InitDB()
+        public static bool InitDB()
         {
             try
             {
@@ -87,10 +87,13 @@ namespace GridLine_IDE.Helpers
                 var create = "CREATE TABLE IF NOT EXISTS Programs(ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT NOT NULL, Code TEXT NOT NULL)";
 
                 SendNonQuery(create);
+
+                return true;
             } catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
+            return false;
         }
 
         private static List<T> SendReadQuery<T>(string commandText) where T : new()

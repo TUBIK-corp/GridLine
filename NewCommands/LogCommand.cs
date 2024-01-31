@@ -24,6 +24,7 @@ namespace GridLine_IDE.NewCommands
 
         public void InterpreteArguments(string str_args)
         {
+            string res = "";
             foreach (var arg in str_args.Split(' '))
             {
                 var argument = App.LangLineProgram.InterpreteArgument(arg);
@@ -32,9 +33,9 @@ namespace GridLine_IDE.NewCommands
                 {
                     text = $"{arg}: {text}";
                 }
-                str_args = str_args.Replace(arg, text);
+                res = str_args.Replace(arg, text) + " ";
             }
-            TextTolog = str_args;
+            TextTolog = res;
         }
 
         
