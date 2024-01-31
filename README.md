@@ -25,16 +25,16 @@ GridLine IDE имеет удобный и интуитивный интерфе�
 ```
 PROCEDURE HelloWorld
   IFBLOCK RIGHT
-    DOWN 2
+    DOWN 1
   ENDIF
   IFBLOCK DOWN
-    LEFT 2
+    LEFT 1
   ENDIF
   IFBLOCK UP
-    RIGHT 2
+    RIGHT 1
   ENDIF
   IFBLOCK LEFT
-    UP 2
+    UP 1
   ENDIF
 ENDPROC
 
