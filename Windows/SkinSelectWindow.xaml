@@ -1,0 +1,81 @@
+﻿<Window x:Class="GridLine_IDE.Windows.SkinSelectWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GridLine_IDE.Windows"
+        mc:Ignorable="d"
+        Title="GridLine IDE - выбор исполнителя" Height="500" Width="450" Closing="ClosingWindow">
+    <Window.Resources>
+        <Style x:Key="ControlButton" TargetType="Button">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="BorderBrush" Value="#25252f"/>
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                        <Condition Property="IsEnabled" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="BorderBrush" Value="#92929f"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="False"/>
+                        <Condition Property="IsEnabled" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <MultiTrigger.Setters>
+                        <Setter Property="BorderBrush" Value="#25252f"/>
+                    </MultiTrigger.Setters>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Grid Background="#2d2d36">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.5*"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="0.5*"/>
+            <RowDefinition Height="150" MinHeight="150"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock FontSize="20" Foreground="White" FontWeight="Bold" Grid.Row="0" Text="Изменить скин инсполнителя" TextAlignment="Center" VerticalAlignment="Center"/>
+
+        <Viewbox Grid.Row="1" Stretch="Uniform" Margin="5">
+            <Border Background="#23232a" CornerRadius="50" BorderThickness="2" BorderBrush="White">
+                <Image x:Name="SkinSelectedBox" Margin="20" Width="512" Height="512"/>
+            </Border>
+        </Viewbox>
+
+        <TextBox x:Name="SkinName" FontWeight="Bold" IsReadOnly="True" Foreground="White" TextAlignment="Center" Grid.Row="2" Background="Transparent" BorderThickness="0" FontSize="15" VerticalAlignment="Center"/>
+
+        <ListBox BorderThickness="0" Background="#23232a" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Row="3" x:Name="SkinBox" SelectionChanged="SkinChanged" SelectionMode="Single">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel VerticalAlignment="Center" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" IsItemsHost="True" Background="Transparent"/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="#27272f" BorderThickness="{Binding Path=Thickness}"  CornerRadius="10" BorderBrush="White">
+                        <!--<Viewbox Stretch="Uniform">-->
+                            <Image Source="{Binding Path=ImageSource}" Width="128" Height="128"/>
+                        <!--</Viewbox>-->
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <Button Style="{DynamicResource ControlButton}" x:Name="SaveButton"  Click="SelectClicked" Background="#23232a" Foreground="White"  Grid.Row="4" Margin="20" Content="Сохранить">
+            <Button.Template>
+                <ControlTemplate>
+                    <Border  BorderThickness="1" Background="#23232a" >
+                        <TextBlock Text="Сохранить" x:Name="SaveText" TextAlignment="Center" Foreground="Gray"  VerticalAlignment="Center" Margin="0 0 5 0"/>
+                    </Border>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+    </Grid>
+</Window>

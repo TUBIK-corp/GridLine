@@ -48,7 +48,10 @@
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="LangLine, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\LangLine.1.0.5\lib\net48\LangLine.dll</HintPath>
+      <HintPath>..\packages\LangLine.1.0.6.1\lib\net48\LangLine.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -82,11 +85,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Helpers\ConfigHelper.cs" />
     <Compile Include="Windows\AddToDatabaseWindow.xaml.cs">
       <DependentUpon>AddToDatabaseWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\OpenFromDatabaseWindow.xaml.cs">
       <DependentUpon>OpenFromDatabaseWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\SkinSelectWindow.xaml.cs">
+      <DependentUpon>SkinSelectWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -110,6 +117,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\OpenFromDatabaseWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\SkinSelectWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -145,6 +156,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
+    <Resource Include="Images\Robot_Vacuum_Cleaner_DarkBlue.png" />
+    <Resource Include="Images\Robot_Vacuum_Cleaner_Gray.png" />
+    <Resource Include="Images\Robot_Vacuum_Cleaner_Red.png" />
     <Resource Include="Images\LangLine_Large.png" />
     <Resource Include="Images\LangLine_Small.png" />
     <Resource Include="Images\LangLine_Very_Small.png" />

@@ -11,6 +11,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
+using static GridLine_IDE.Windows.SkinSelectWindow;
 
 namespace GridLine_IDE
 {
@@ -22,10 +24,14 @@ namespace GridLine_IDE
         public static LangLineCore LangLineProgram;
         public static MovementField MainGrid;
         public static int ExecutionInterval = 20;
+        public static SkinItem CurrentSkin = null;
+
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            var config = ConfigHelper.ReadConfig();
+            CurrentSkin = new SkinItem(config.SkinName, config.IconName);
             //DLLCleaner();
             DatabaseHelper.InitDB();
             LangLineProgram  = new LangLineCore();

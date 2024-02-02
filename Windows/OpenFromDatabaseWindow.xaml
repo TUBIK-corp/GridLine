@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GridLine_IDE.Windows"
         mc:Ignorable="d"
-        Title="GridLine - открыть программу из базы данных" Height="500" Width="450" Closing="CloseClicked">
+        Title="GridLine IDE - открыть программу из базы данных" Height="500" Width="450" Closing="CloseClicked">
     <Window.Resources>
         <Style x:Key="ControlButton" TargetType="Button">
             <Setter Property="Focusable" Value="False"/>

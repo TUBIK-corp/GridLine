@@ -12,7 +12,10 @@
         <BitmapImage x:Key="PauseImage" UriSource="Images/Pause.png"/>
         <BitmapImage x:Key="ForwardImage" UriSource="Images/Step_Forward.png"/>
         <BitmapImage x:Key="BackwardImage" UriSource="Images/Step_Back.png"/>
-        <BitmapImage x:Key="UserImage" UriSource="Images/Robot_Vacuum_Cleaner_Blue.png"/>
-        <BitmapImage x:Key="UserImageSkin" UriSource="Images/pomni_test.png"/>
+        <BitmapImage x:Key="UserBlueRobotImage" UriSource="Images/Robot_Vacuum_Cleaner_Blue.png"/>
+        <BitmapImage x:Key="UserRedRobotImage" UriSource="Images/Robot_Vacuum_Cleaner_Red.png"/>
+        <BitmapImage x:Key="UserDarkBlueRobotImage" UriSource="Images/Robot_Vacuum_Cleaner_DarkBlue.png"/>
+        <BitmapImage x:Key="UserGrayRobotImage" UriSource="Images/Robot_Vacuum_Cleaner_Gray.png"/>
+        <BitmapImage x:Key="UserPomniImage" UriSource="Images/pomni_test.png"/>
     </Application.Resources>
 </Application>

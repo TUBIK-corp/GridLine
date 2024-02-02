@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace IspolnitelCherepashka.Helpers
+namespace GridLine_IDE.Helpers
 {
     public static class GridHelper
     {
@@ -29,6 +29,8 @@ namespace IspolnitelCherepashka.Helpers
                 {
                     grid.RowDefinitions.Add(new RowDefinition() { Height = new System.Windows.GridLength(Step, System.Windows.GridUnitType.Pixel) });
                     Border border = new Border();
+                    var cell = new Cell(wp, hp);
+                    border.Tag = cell;
                     border.Background = Brushes.AliceBlue;
                     border.Margin = new System.Windows.Thickness(1);
                     grid.Children.Add(border);
@@ -36,8 +38,20 @@ namespace IspolnitelCherepashka.Helpers
                     Grid.SetRow(border, hp);
                 }
             }
+
             return grid;
         }
 
+        public class Cell
+        {
+            public int X { get; set; }
+            public int Y { get; set; }
+
+            public Cell(int x, int y)
+            {
+                X = x;
+                Y = y;
+            }
+        }
     }
 }

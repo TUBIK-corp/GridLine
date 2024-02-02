@@ -3,8 +3,8 @@ using GridLine_IDE.Helpers;
 using GridLine_IDE.Models;
 using GridLine_IDE.NewCommands;
 using GridLine_IDE.Windows;
-using IspolnitelCherepashka.Helpers;
 using LangLine.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -28,21 +28,12 @@ namespace GridLine_IDE
     {
         public MainWindow()
         {
-            App.LangLineProgram = new LangLine.LangLineCore(21, 21);
             InitializeComponent();
+            SetupProgram();
             FieldBorder.AddHandler(UIElement.PreviewMouseWheelEvent,
                  new MouseWheelEventHandler(MouseWheel_Zooming),
                  true // Handler will be called even though e.Handled = true
                 );
-            App.LangLineProgram.InterpreterModule.OnCompleted += ProgramCompleted;
-            App.LangLineProgram.InterpreterModule.OnException += ProgramException;
-            App.MainGrid = new MovementField(GridHelper.CreateGrid(App.LangLineProgram.MainField.Width, App.LangLineProgram.MainField.Height));
-            Field.Children.Add(App.MainGrid.Field);
-            App.MainGrid.MoveEnded += GridMoveEnded;
-            App.MainGrid.Moved += UpdateStatus;
-
-            App.LangLineProgram.RegisterCommand("LOG", typeof(LogCommand));
-            SetupProgram();
         }
 
         private void UpdateStatus()
@@ -52,7 +43,8 @@ namespace GridLine_IDE
                 var currentIndex = App.MainGrid.GetCurrentMoveIndex();
                 var maxIndex = App.MainGrid.Positions.Count - 1;
 
-                StepStatus.Text = $"{(currentIndex > -1 ? currentIndex : 0)} из {(maxIndex > -1 ? maxIndex : 0)}";
+                StepStatus.Text = $"{(currentIndex > -1 ? (currentIndex < App.MainGrid.Positions.Count - 1 ? currentIndex : App.MainGrid.Positions.Count - 1) : 0)} из {(maxIndex > -1 ? maxIndex : 0)}";
+
             });
         }
 
@@ -71,10 +63,36 @@ namespace GridLine_IDE
             });
         }
 
-        public void SetupProgram()
+        public void SetupProgram(Config config = null)
         {
-            App.LangLineProgram.LimitNesting(3);
+            Field.Children.Clear();
+            if (config == null)
+                InitLangLine();
+            else ReInitLangLine(config);
+            App.LangLineProgram.InterpreterModule.OnCompleted += ProgramCompleted;
+            App.LangLineProgram.InterpreterModule.OnException += ProgramException;
+            App.MainGrid = new MovementField(GridHelper.CreateGrid(App.LangLineProgram.MainField.Width, App.LangLineProgram.MainField.Height));
+            Field.Children.Add(App.MainGrid.Field);
+            App.MainGrid.MoveEnded += GridMoveEnded;
+            App.MainGrid.Moved += UpdateStatus;
             App.LangLineProgram.InterpreterModule.OnCustomEvent += CustomEventInvoked;
+            App.LangLineProgram.RegisterCommand("LOG", typeof(LogCommand));
+            UpdateStatus();
+        }
+
+        public void InitLangLine()
+        {
+            App.LangLineProgram = new LangLine.LangLineCore(ConfigHelper.Config.Width, ConfigHelper.Config.Height);
+            App.LangLineProgram.SetSpawnPoint(new Point(ConfigHelper.Config.StartX, ConfigHelper.Config.StartY));
+            App.LangLineProgram.LimitNesting(ConfigHelper.Config.LimitNesting);
+            App.LangLineProgram.LimitVariable(ConfigHelper.Config.LimitMaxValue);
+        }
+        public void ReInitLangLine(Config config)
+        {
+            App.LangLineProgram = new LangLine.LangLineCore(config.Width, config.Height);
+            App.LangLineProgram.SetSpawnPoint(new Point(config.StartX, config.StartY));
+            App.LangLineProgram.LimitNesting(config.LimitNesting);
+            App.LangLineProgram.LimitVariable(config.LimitMaxValue);
         }
 
         private void CustomEventInvoked(CustomEventArgs args)
@@ -166,7 +184,6 @@ namespace GridLine_IDE
 
         public void ResetCommandList()
         {
-            //TestDatabase();
             int i = 0;
             foreach (Paragraph paragraph in CodeInput.Document.Blocks.ToList())
             {
@@ -421,7 +438,9 @@ namespace GridLine_IDE
 
         public void ChangeTitleWithPath()
         {
-            if(!Title.Equals("GridLine IDE - " + OpenedPath))
+            if (string.IsNullOrWhiteSpace(OpenedPath))
+                Title = "GridLine IDE";
+            else if (!Title.Equals("GridLine IDE - " + OpenedPath))
                 Title = "GridLine IDE - " + OpenedPath;
         }
 
@@ -634,15 +653,42 @@ namespace GridLine_IDE
                         return;
                     }
                 }
+                var program = window.GetProgram();
+                var program_config = ConfigHelper.UnpackConfig(program.Config);
+                if(program_config.Width != App.LangLineProgram.MainField.Width
+                    || program_config.Height != App.LangLineProgram.MainField.Height
+                    || program_config.StartX != App.LangLineProgram.SpawnPoint.X
+                    || program_config.StartY != App.LangLineProgram.SpawnPoint.Y)
+                {
+                    var messageBox = MessageBox.Show("Данный файл содержит иные конфигурационные данные. Использовать новую конфигурацию?", "Внимание!", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+                    
+                    if (messageBox == MessageBoxResult.Yes)
+                    {
+                        SetupProgram(program_config);
+                    }
+                    else if (messageBox == MessageBoxResult.Cancel)
+                    {
+                        return;
+                    }
+                }
+                var positions = JsonConvert.DeserializeObject<List<Point>>(program.Positions);
+                if(positions != null && positions.Count>1)
+                {
+                    positions.RemoveAt(0);
+                    App.MainGrid.UpdatePositions(positions);
+                    UpdateStatus();
+                }
+                
                 CodeInput.Document = new FlowDocument();
-                foreach (string line in window.GetProgram().Code.Split('\n'))
+                foreach (string line in program.Code.Split('\n'))
                 {
                     var paragraph = new Paragraph();
                     paragraph.Inlines.Add(line.Trim('\n').Trim('\r'));
                     CodeInput.Document.Blocks.Add(paragraph);
                 }
 
-                HasChanges = true;
+                OpenedPath = string.Empty;
+                HasChanges = false;
                 ToggleStopButton(false);
                 TogglePRButton(PRStatuses.DisabledResume);
             }
@@ -658,6 +704,34 @@ namespace GridLine_IDE
         private void HelpClicked(object sender, RoutedEventArgs e)
         {
             OpenHelpMenu();
+        }
+
+        private void CustomizeClicked(object sender, RoutedEventArgs e)
+        {
+            SkinSelectWindow window = new SkinSelectWindow();
+            window.ShowDialog();
+            App.MainGrid.ReloadIcon();
+            e.Handled = true;
+        }
+
+        private void RestartClicked(object sender, RoutedEventArgs e)
+        {
+            if (HasChanges)
+            {
+                var messageBox = MessageBox.Show("У вас остались несохранённые изменения. Сохранить их?", "Внимание!", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+                if (messageBox == MessageBoxResult.Yes)
+                {
+                    if (!SaveFile())
+                        return;
+                }
+                else if (messageBox == MessageBoxResult.Cancel)
+                {
+                    return;
+                }
+            }
+            HasChanges = false;
+            SetupProgram();
+            e.Handled = true;
         }
     }
 }

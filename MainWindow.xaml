@@ -209,6 +209,12 @@
                         <ToolTip Foreground="Gray" Content="F1"/>
                     </MenuItem.ToolTip>
                 </MenuItem>
+                <MenuItem Header="Кастомизация" Style="{StaticResource MenuItemStyle}" Click="CustomizeClicked"/>
+                <MenuItem Header="Перезагрузить" Style="{StaticResource MenuItemStyle}" Click="RestartClicked">
+                    <MenuItem.ToolTip>
+                        <ToolTip Foreground="Gray" Content="Перезагрузка поля."/>
+                    </MenuItem.ToolTip>
+                </MenuItem>
             </MenuItem>
         </Menu>
 

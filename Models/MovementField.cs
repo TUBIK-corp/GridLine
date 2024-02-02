@@ -6,6 +6,12 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using static System.Net.Mime.MediaTypeNames;
 using System.Windows.Media.Imaging;
+using System;
+
+using GridLine_IDE.Helpers;
+using System.Windows.Threading;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Windows.Data;
 
 namespace GridLine_IDE.Models
 {
@@ -33,7 +39,8 @@ namespace GridLine_IDE.Models
             UserVisual.Margin = new System.Windows.Thickness(2);
             UserVisual.VerticalAlignment = System.Windows.VerticalAlignment.Stretch;
             UserVisual.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
-            UserVisual.Source = (BitmapImage)App.Current.FindResource("UserImage");
+            UserVisual.Source = App.CurrentSkin.ImageSource;
+
             object c = new object();
 
             Field.Children.Add(UserVisual);
@@ -42,6 +49,11 @@ namespace GridLine_IDE.Models
             Tick = 0;
             Iterator = 0;
             timer.Elapsed += TimerElapsed;
+        }
+
+        public void ReloadIcon()
+        {
+            UserVisual.Source = App.CurrentSkin.ImageSource;
         }
 
         private void TimerElapsed(object sender, ElapsedEventArgs e)
@@ -58,9 +70,33 @@ namespace GridLine_IDE.Models
                     Moved?.Invoke();
                     return;
                 }
-                UpdateUI(Iterator);
                 Iterator++;
+                FillCurrentCell();
+                UpdateUI(Iterator);
                 Moved?.Invoke();
+            }
+        }
+
+        public void FillCurrentCell()
+        {
+            try
+            {
+                if (Iterator < Positions.Count)
+                {
+                    App.Current.Dispatcher.Invoke(() =>
+                    {
+                        var list = Field.Children.OfType<Border>();
+                        var border = list.First(pos => (pos.Tag as GridHelper.Cell).X == Positions[Iterator].X
+                            && (pos.Tag as GridHelper.Cell).Y == Positions[Iterator].Y);
+
+                        border.Background = new SolidColorBrush(Color.FromRgb(166, 166, 188));
+
+                    });
+                }
+            } 
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -80,8 +116,11 @@ namespace GridLine_IDE.Models
         public void UpdatePositions(List<Point> positions)
         {
             Positions = positions;
-            Positions.Insert(0, new Point(0,0));
+            Positions.Insert(0, App.LangLineProgram.SpawnPoint);
+            Iterator = 0;
+            Tick = 0;
             ReloadUI();
+            FillCurrentCell();
         }
 
         public void StartMovement()
@@ -115,6 +154,7 @@ namespace GridLine_IDE.Models
             if (Iterator < Positions.Count-1)
             {
                 Iterator++;
+                FillCurrentCell();
                 Moved?.Invoke();
                 UpdateUI(Iterator);
             }
@@ -125,16 +165,31 @@ namespace GridLine_IDE.Models
         {
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                Grid.SetColumn(UserVisual, (int)Positions[index].X);
-                Grid.SetRow(UserVisual, (int)Positions[index].Y);
+                try
+                {
+                    if (index < Positions.Count)
+                    {
+                        Grid.SetColumn(UserVisual, (int)Positions[index].X);
+                        Grid.SetRow(UserVisual, (int)Positions[index].Y);
+                    }
+                } catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
             });
         }
         public void ReloadUI()
         {
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                Grid.SetColumn(UserVisual, 0);
-                Grid.SetRow(UserVisual, 0);
+                var list = Field.Children.OfType<Border>();
+                foreach (var border in list)
+                {
+                    border.Background = new SolidColorBrush(Colors.AliceBlue);
+                }
+
+                Grid.SetColumn(UserVisual, (int)App.LangLineProgram.SpawnPoint.X);
+                Grid.SetRow(UserVisual, (int)App.LangLineProgram.SpawnPoint.Y);
             });
         }
     }

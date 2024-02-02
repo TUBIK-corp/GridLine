@@ -1,4 +1,5 @@
 ﻿using GridLine_IDE.Database;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -15,13 +16,16 @@ namespace GridLine_IDE.Helpers
     {
         public static void AddProgram(string name, List<string> commands)
         {
+            var conf = ConfigHelper.PackConfig(ConfigHelper.Config);
             var program = new ProgramCode()
             {
                 Name = name,
-                Code = string.Join("\n", commands)
+                Code = string.Join("\n", commands),
+                Config = conf,
+                Positions = JsonConvert.SerializeObject(App.LangLineProgram.MainField.GetPositions())
             };
 
-            var insert = $"INSERT INTO Programs (Name, Code) VALUES ('{program.Name}', '{program.Code}')";
+            var insert = $"INSERT INTO Programs (Name, Code, Config, Positions) VALUES ('{program.Name}', '{program.Code}', '{program.Config}', '{program.Positions}')";
 
             SendNonQuery(insert);
         }
@@ -29,7 +33,7 @@ namespace GridLine_IDE.Helpers
         public static List<ProgramCode> GetAllPrograms()
         {
             var select = $"SELECT * FROM Programs";
-            var data = SendReadQuery<ProgramCode>(select);
+            var data = SendReadQuery<ProgramCode>(select) ?? new List<ProgramCode>();
             return data;
         }
 
@@ -49,7 +53,7 @@ namespace GridLine_IDE.Helpers
         public static List<ProgramCode> SelectData(Func<ProgramCode, bool> predicate)
         {
             var select = $"SELECT * FROM Programs";
-            var data = SendReadQuery<ProgramCode>(select);
+            var data = SendReadQuery<ProgramCode>(select) ?? new List<ProgramCode>();
             return data.Where(predicate).ToList();
         }
 
@@ -82,9 +86,12 @@ namespace GridLine_IDE.Helpers
         {
             try
             {
+                if (!string.IsNullOrWhiteSpace(ConfigHelper.Config.ConnectSQLite))
+                    ConnectionString = ConfigHelper.Config.ConnectSQLite;
+
                 var folder = Environment.CurrentDirectory;
                 ConnectionString = $"Data Source={System.IO.Path.Combine(folder, "database.db")}";
-                var create = "CREATE TABLE IF NOT EXISTS Programs(ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT NOT NULL, Code TEXT NOT NULL)";
+                var create = "CREATE TABLE IF NOT EXISTS Programs(ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT NOT NULL, Code TEXT NOT NULL, Config TEXT NOT NULL, Positions TEXT NULL)";
 
                 SendNonQuery(create);
 
@@ -98,27 +105,42 @@ namespace GridLine_IDE.Helpers
 
         private static List<T> SendReadQuery<T>(string commandText) where T : new()
         {
-            using (var connection = new SQLiteConnection(ConnectionString))
+            if (!string.IsNullOrWhiteSpace(ConfigHelper.Config.ConnectSQLite))
+                ConnectionString = ConfigHelper.Config.ConnectSQLite;
+            try
             {
-                connection.Open();
-                SQLiteCommand command = new SQLiteCommand();
-                command.Connection = connection;
-                command.CommandText = commandText;
+                using (var connection = new SQLiteConnection(ConnectionString))
+                {
+                    connection.Open();
+                    SQLiteCommand command = new SQLiteCommand();
+                    command.Connection = connection;
+                    command.CommandText = commandText;
 
-                return command.GetData<T>();
+                    return command.GetData<T>();
+                }
+            } catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
+            return null;
         }
 
         private static void SendNonQuery(string commandText)
         {
-            using (var connection = new SQLiteConnection(ConnectionString))
+            try
             {
-                connection.Open();
-                SQLiteCommand command = new SQLiteCommand();
-                command.Connection = connection;
-                command.CommandText = commandText;
-                
-                command.ExecuteNonQuery();
+                using (var connection = new SQLiteConnection(ConnectionString))
+                {
+                    connection.Open();
+                    SQLiteCommand command = new SQLiteCommand();
+                    command.Connection = connection;
+                    command.CommandText = commandText;
+
+                    command.ExecuteNonQuery();
+                }
+            } catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
     }

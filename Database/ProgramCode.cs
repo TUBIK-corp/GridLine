@@ -6,5 +6,7 @@
 
         public string Name { get; set; }
         public string Code { get; set; }
+        public string Config { get; set; }
+        public string Positions { get; set; }
     }
 }
