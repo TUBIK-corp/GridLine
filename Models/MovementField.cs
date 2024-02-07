@@ -132,7 +132,12 @@ namespace GridLine_IDE.Models
 
         public void StopMovement()
         {
-            Iterator = 0;
+            for(int it = Iterator; it < Positions.Count-1; it++)
+            {
+                Iterator++;
+                FillCurrentCell();
+            }
+            
             Tick = 0;
             UpdateUI(Positions.Count - 1);
             EndMove();

@@ -16,6 +16,8 @@ namespace GridLine_IDE.Helpers
     {
         public static void AddProgram(string name, List<string> commands)
         {
+
+            InitDB();
             var conf = ConfigHelper.PackConfig(ConfigHelper.Config);
             var program = new ProgramCode()
             {
@@ -32,6 +34,8 @@ namespace GridLine_IDE.Helpers
 
         public static List<ProgramCode> GetAllPrograms()
         {
+
+            InitDB();
             var select = $"SELECT * FROM Programs";
             var data = SendReadQuery<ProgramCode>(select) ?? new List<ProgramCode>();
             return data;
@@ -39,12 +43,16 @@ namespace GridLine_IDE.Helpers
 
         public static void UpdateProgramById(int id, List<string> commands)
         {
+
+            InitDB();
             var update = $"UPDATE Programs SET Code='{string.Join("\n", commands)}' WHERE ID='{id}'";
             SendNonQuery(update);
         }
         
         public static void UpdateProgramByName(string name, List<string> commands)
         {
+
+            InitDB();
             var update = $"UPDATE Programs SET Code='{string.Join("\n", commands)}' WHERE Name='{name}'";
             SendNonQuery(update);
         }
@@ -52,6 +60,7 @@ namespace GridLine_IDE.Helpers
 
         public static List<ProgramCode> SelectData(Func<ProgramCode, bool> predicate)
         {
+            InitDB();
             var select = $"SELECT * FROM Programs";
             var data = SendReadQuery<ProgramCode>(select) ?? new List<ProgramCode>();
             return data.Where(predicate).ToList();
@@ -109,6 +118,7 @@ namespace GridLine_IDE.Helpers
                 ConnectionString = ConfigHelper.Config.ConnectSQLite;
             try
             {
+                InitDB();
                 using (var connection = new SQLiteConnection(ConnectionString))
                 {
                     connection.Open();

@@ -59,7 +59,8 @@ namespace GridLine_IDE
             Dispatcher.Invoke(() =>
             {
                 ToggleStopButton(false);
-                TogglePRButton(PRStatuses.DisabledResume); 
+                TogglePRButton(PRStatuses.DisabledResume);
+                UpdateStatus();
             });
         }
 
@@ -233,10 +234,12 @@ namespace GridLine_IDE
             TogglePRButton(PRStatuses.Pause);
             ToggleStopButton(true);
             ResetCommandList();
+
             App.LangLineProgram.StartProgram();
             var positions = App.LangLineProgram.MainField.GetPositions();
             App.MainGrid.UpdatePositions(positions);
             App.MainGrid.StartMovement();
+            UpdateStatus();
         }
 
         private void CurrentIntervalValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
