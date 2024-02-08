@@ -574,6 +574,10 @@ namespace GridLine_IDE
                 {
                     OpenedPath = openFileDialog.FileName;
                 }
+                else
+                {
+                    return;
+                }
             }
             if (HasChanges)
             {

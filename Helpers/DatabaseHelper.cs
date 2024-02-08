@@ -34,7 +34,6 @@ namespace GridLine_IDE.Helpers
 
         public static List<ProgramCode> GetAllPrograms()
         {
-
             InitDB();
             var select = $"SELECT * FROM Programs";
             var data = SendReadQuery<ProgramCode>(select) ?? new List<ProgramCode>();
@@ -128,7 +127,12 @@ namespace GridLine_IDE.Helpers
 
                     return command.GetData<T>();
                 }
-            } catch (Exception ex)
+            }
+            catch (SQLiteException ex)
+            {
+                MessageBox.Show("Ошибка обращения к базе данных, попробуйте удалить файл database.db");
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
@@ -148,7 +152,11 @@ namespace GridLine_IDE.Helpers
 
                     command.ExecuteNonQuery();
                 }
-            } catch(Exception ex)
+            } catch(SQLiteException ex)
+            {
+                MessageBox.Show("Ошибка обращения к базе данных, попробуйте удалить файл database.db");
+            } 
+            catch(Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
