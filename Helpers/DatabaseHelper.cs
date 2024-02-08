@@ -127,14 +127,10 @@ namespace GridLine_IDE.Helpers
 
                     return command.GetData<T>();
                 }
-            }
-            catch (SQLiteException ex)
-            {
-                MessageBox.Show("Ошибка обращения к базе данных, попробуйте удалить файл database.db");
-            }
+            }  
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show("Ошибка обращения к базе данных, попробуйте удалить файл database.db");
             }
             return null;
         }
@@ -152,13 +148,10 @@ namespace GridLine_IDE.Helpers
 
                     command.ExecuteNonQuery();
                 }
-            } catch(SQLiteException ex)
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show("Ошибка обращения к базе данных, попробуйте удалить файл database.db");
-            } 
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.Message);
             }
         }
     }

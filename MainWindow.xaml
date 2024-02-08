@@ -200,7 +200,7 @@
                 <!--<MenuItem Header="Импорт" Style="{StaticResource MenuItemStyle}"/>
                 <MenuItem Header="Экспорт" Style="{StaticResource MenuItemStyle}"/>-->
                 <MenuItem Header="Открыть из базы данных" Style="{StaticResource MenuItemStyle}" Click="OpenInBDClicked"/>
-                <MenuItem Header="Сохранить в базе данных" Style="{StaticResource MenuItemStyle}" Click="SaveToDBClicked"/>
+                <MenuItem Header="Сохранить в базу данных" Style="{StaticResource MenuItemStyle}" Click="SaveToDBClicked"/>
                 
             </MenuItem>
             <MenuItem Header="Дополнительно" Background="Transparent"  Style="{DynamicResource ParentMenuItem}" Click="HelpClicked">
