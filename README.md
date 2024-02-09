@@ -55,7 +55,7 @@ GridLine IDE имеет удобный и интуитивный интерфе�
 
 <p align="center">
     <br>
-      <img src="Assets/CommandArchBrightness.png"  align="center"/>
+      <img src="Assets/CommandArchBright.png"  align="center"/>
     <br>
 <p>
 
